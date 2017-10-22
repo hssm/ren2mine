@@ -4,6 +4,7 @@ from pathlib import Path
 
 lineRegex = re.compile(r'\s*(.*)\s*(".+")')
 rubyRegex = re.compile(r'{rb}(.+?){/rb}\s*?{rt}(.+?){/rt}')
+rubyRtRegex = re.compile(r'(.){rt}(.+?){/rt}')
 
 def cleanFile(infile, outfile):
     if not os.path.exists(os.path.dirname(outfile)):
@@ -37,8 +38,14 @@ body {
         if name.startswith("$") or name.startswith("play"):
             continue
 
+        if line.find("{rt}") > 0:
+            print(line)
+
         # Replace ruby tags with html versions
         line = rubyRegex.sub("<ruby>\g<1><rt>\g<2></rt></ruby>", line)
+
+        # Replace any <rt>-only lines in the same way
+        line = rubyRtRegex.sub("<ruby>\g<1><rt>\g<2></rt></ruby>", line)
 
         if name is not None:
             names.add(name)
@@ -51,7 +58,7 @@ body {
     out.write("</html>")
 
 if __name__ == "__main__":
-    source_dir = "/home/hssm/.local/share/Steam/steamapps/common/Sound of Drop - fall into poison -/"
+    source_dir = "/home/hssm/New Folder/scenario/"
     output_dir = "/home/hssm/mineme/"
 
     # Last part of path is assumed to be the game name
